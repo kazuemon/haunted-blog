@@ -3,13 +3,15 @@
 class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
-  before_action :set_blog, only: %i[show edit update destroy]
+  before_action :set_own_blog, only: %i[edit update destroy]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
   end
 
-  def show; end
+  def show
+    @blog = Blog.visible(current_user).find(params[:id])
+  end
 
   def new
     @blog = Blog.new
@@ -28,26 +30,28 @@ class BlogsController < ApplicationController
   end
 
   def update
-    if @blog.update(blog_params)
-      redirect_to blog_url(@blog), notice: 'Blog was successfully updated.'
+    if @own_blog.update(blog_params)
+      redirect_to blog_url(@own_blog), notice: 'Blog was successfully updated.'
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @blog.destroy!
+    @own_blog.destroy!
 
     redirect_to blogs_url, notice: 'Blog was successfully destroyed.', status: :see_other
   end
 
   private
 
-  def set_blog
-    @blog = Blog.find(params[:id])
+  def set_own_blog
+    @own_blog = current_user.blogs.find(params[:id])
   end
 
   def blog_params
-    params.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
+    permitted_fields = %i[title content secret]
+    permitted_fields.push(:random_eyecatch) if current_user.premium?
+    params.require(:blog).permit(*permitted_fields)
   end
 end

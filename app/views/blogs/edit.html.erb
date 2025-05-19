@@ -1,16 +1,16 @@
 <h1>Editing blog</h1>
 
-<%= render "form", blog: @blog %>
+<%= render "form", blog: @own_blog %>
 
 <br>
 
 <div>
-  <%= link_to "Show this blog", @blog %> |
+  <%= link_to "Show this blog", @own_blog %> |
   <%= link_to "Back to blogs", blogs_path %>
 </div>
 
 <div class="delete-action">
-  <%= link_to @blog, data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "btn btn-light btn-sm" do %>
+  <%= link_to @own_blog, data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "btn btn-light btn-sm" do %>
     <span class="bi bi-trash" aria-hidden="true"></span>
     Delete
   <% end %>
